@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechBoard - Drawing Board Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-palette"></i>
+                    <span>TechBoard</span>
+                </div>
+                <div class="header-controls">
+                    <div class="zoom-controls">
+                        <button id="zoomOut" class="btn-icon" title="Zoom Out">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span id="zoomLevel" class="zoom-level">100%</span>
+                        <button id="zoomIn" class="btn-icon" title="Zoom In">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button id="resetZoom" class="btn-icon" title="Reset Zoom">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                    </div>
+                    <div class="top-controls">
+                        <button id="undoBtn" class="btn-icon" title="Undo">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button id="redoBtn" class="btn-icon" title="Redo">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button id="clearBtn" class="btn-icon btn-danger" title="Clear Board">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button id="saveBtn" class="btn-icon btn-success" title="Save Board">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button id="downloadPNG" class="btn-icon btn-primary" title="Download as PNG">
+                            <i class="fas fa-image"></i> PNG
+                        </button>
+                        <button id="downloadJPG" class="btn-icon btn-primary" title="Download as JPG">
+                            <i class="fas fa-image"></i> JPG
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Sidebar - Tools -->
+            <aside class="sidebar">
+                <div class="tools-section">
+                    <h3 class="section-title">Drawing Tools</h3>
+                    
+                    <button class="tool-btn active" data-tool="select" title="Select/Move">
+                        <i class="fas fa-arrow-pointer"></i>
+                        <span>Select</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="pencil" title="Pencil">
+                        <i class="fas fa-pen"></i>
+                        <span>Pencil</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="brush" title="Brush">
+                        <i class="fas fa-paintbrush"></i>
+                        <span>Brush</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="highlighter" title="Highlighter">
+                        <i class="fas fa-marker"></i>
+                        <span>Highlighter</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="eraser" title="Eraser">
+                        <i class="fas fa-eraser"></i>
+                        <span>Eraser</span>
+                    </button>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="section-title">Shapes</h3>
+                    
+                    <button class="tool-btn" data-tool="line" title="Line">
+                        <i class="fas fa-minus"></i>
+                        <span>Line</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="rectangle" title="Rectangle">
+                        <i class="far fa-square"></i>
+                        <span>Rectangle</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="circle" title="Circle">
+                        <i class="far fa-circle"></i>
+                        <span>Circle</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="triangle" title="Triangle">
+                        <i class="fas fa-play"></i>
+                        <span>Triangle</span>
+                    </button>
+                    
+                    <button class="tool-btn" data-tool="arrow" title="Arrow">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Arrow</span>
+                    </button>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="section-title">Text</h3>
+                    
+                    <button class="tool-btn" data-tool="text" title="Add Text">
+                        <i class="fas fa-font"></i>
+                        <span>Text</span>
+                    </button>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="section-title">Colors</h3>
+                    
+                    <div class="color-picker-wrapper">
+                        <div class="color-preview" id="colorPreview"></div>
+                        <input type="color" id="colorPicker" value="#000000">
+                    </div>
+                    
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background-color: #000000;" data-color="#000000"></div>
+                        <div class="color-swatch" style="background-color: #FF0000;" data-color="#FF0000"></div>
+                        <div class="color-swatch" style="background-color: #00FF00;" data-color="#00FF00"></div>
+                        <div class="color-swatch" style="background-color: #0000FF;" data-color="#0000FF"></div>
+                        <div class="color-swatch" style="background-color: #FFFF00;" data-color="#FFFF00"></div>
+                        <div class="color-swatch" style="background-color: #00FFFF;" data-color="#00FFFF"></div>
+                        <div class="color-swatch" style="background-color: #FF00FF;" data-color="#FF00FF"></div>
+                        <div class="color-swatch" style="background-color: #FFA500;" data-color="#FFA500"></div>
+                        <div class="color-swatch" style="background-color: #800080;" data-color="#800080"></div>
+                        <div class="color-swatch" style="background-color: #FFC0CB;" data-color="#FFC0CB"></div>
+                        <div class="color-swatch" style="background-color: #A52A2A;" data-color="#A52A2A"></div>
+                        <div class="color-swatch" style="background-color: #808080;" data-color="#808080"></div>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="section-title">Brush Size</h3>
+                    <div class="size-control">
+                        <input type="range" id="brushSize" min="1" max="50" value="3">
+                        <span id="sizeValue">3px</span>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3 class="section-title">Opacity</h3>
+                    <div class="size-control">
+                        <input type="range" id="opacity" min="0" max="1" step="0.1" value="1">
+                        <span id="opacityValue">100%</span>
+                    </div>
+                </div>
+
+                <div class="tools-section text-options hidden" id="textOptions">
+                    <h3 class="section-title">Text Options</h3>
+                    
+                    <div class="form-group">
+                        <label>Font Size</label>
+                        <input type="number" id="fontSize" min="8" max="120" value="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Font Family</label>
+                        <select id="fontFamily">
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                        </select>
+                    </div>
+                    
+                    <div class="text-style-buttons">
+                        <button id="boldBtn" class="style-btn" title="Bold">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button id="italicBtn" class="style-btn" title="Italic">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button id="underlineBtn" class="style-btn" title="Underline">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Canvas Area -->
+            <div class="canvas-container">
+                <canvas id="drawingCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal hidden" id="textModal">
+        <div class="modal-content">
+            <h3>Add Text</h3>
+            <input type="text" id="textInput" placeholder="Enter text here..." autofocus>
+            <div class="modal-buttons">
+                <button id="confirmText" class="btn-primary">Add</button>
+                <button id="cancelText" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="notification" id="notification">
+        <span id="notificationMessage"></span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
