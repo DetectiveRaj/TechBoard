@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechBoard - Interactive Drawing & Whiteboard</title>
+    <title>TechBoard - Drawing & Whiteboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,7 +12,6 @@
         <header class="header">
             <div class="header-content">
                 <h1>🎨 TechBoard</h1>
-                <p>Interactive Drawing & Whiteboard Application</p>
             </div>
         </header>
 
@@ -20,28 +19,42 @@
         <div class="toolbar">
             <!-- Drawing Tools -->
             <div class="tool-group">
-                <label>Drawing Tools</label>
-                <button class="tool-btn active" data-tool="pen" title="Pen">✏️ Pen</button>
-                <button class="tool-btn" data-tool="eraser" title="Eraser">🧹 Eraser</button>
+                <label>Drawing</label>
+                <button class="tool-btn active" data-tool="pen" title="Pen">✏️</button>
+                <button class="tool-btn" data-tool="eraser" title="Eraser">🧹</button>
             </div>
 
-            <!-- Shapes -->
+            <!-- Shapes Dropdown -->
             <div class="tool-group">
                 <label>Shapes</label>
-                <button class="tool-btn" data-tool="line" title="Line">📏 Line</button>
-                <button class="tool-btn" data-tool="rectangle" title="Rectangle">▭ Rectangle</button>
-                <button class="tool-btn" data-tool="circle" title="Circle">● Circle</button>
-                <button class="tool-btn" data-tool="ellipse" title="Ellipse">⬭ Ellipse</button>
-                <button class="tool-btn" data-tool="triangle" title="Triangle">△ Triangle</button>
-                <button class="tool-btn" data-tool="polygon" title="Polygon">⬠ Polygon</button>
-                <button class="tool-btn" data-tool="star" title="Star">⭐ Star</button>
-                <button class="tool-btn" data-tool="arrow" title="Arrow">➜ Arrow</button>
+                <div class="dropdown">
+                    <button class="tool-btn dropdown-btn" title="Shapes Menu">▼ Shapes</button>
+                    <div class="dropdown-content">
+                        <button class="tool-btn" data-tool="line" title="Line">📏 Line</button>
+                        <button class="tool-btn" data-tool="rectangle" title="Rectangle">▭ Rectangle</button>
+                        <button class="tool-btn" data-tool="circle" title="Circle">● Circle</button>
+                        <button class="tool-btn" data-tool="ellipse" title="Ellipse">⬭ Ellipse</button>
+                        <button class="tool-btn" data-tool="triangle" title="Triangle">△ Triangle</button>
+                        <button class="tool-btn" data-tool="polygon" title="Polygon">⬠ Polygon</button>
+                        <button class="tool-btn" data-tool="star" title="Star">⭐ Star</button>
+                        <button class="tool-btn" data-tool="arrow" title="Arrow">➜ Arrow</button>
+                        <button class="tool-btn" data-tool="rightarrow" title="Right Arrow">→ RightArrow</button>
+                        <button class="tool-btn" data-tool="diamond" title="Diamond">◇ Diamond</button>
+                        <button class="tool-btn" data-tool="hexagon" title="Hexagon">⬡ Hexagon</button>
+                        <button class="tool-btn" data-tool="heart" title="Heart">♥ Heart</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Text Tool -->
             <div class="tool-group">
-                <label>Text</label>
                 <button class="tool-btn" data-tool="text" title="Text">📝 Text</button>
+            </div>
+
+            <!-- Image Insert -->
+            <div class="tool-group">
+                <input type="file" id="imageInput" accept="image/*" style="display:none;">
+                <button class="tool-btn" id="imageBtn" title="Insert Image">🖼️ Image</button>
             </div>
 
             <!-- Colors -->
@@ -62,27 +75,21 @@
             <div class="tool-group">
                 <label>Fill</label>
                 <input type="checkbox" id="fillToggle" title="Toggle shape fill">
-                <span style="margin-left: 5px;">Fill Shape</span>
             </div>
 
             <!-- Brush Size -->
             <div class="tool-group">
-                <label>Brush Size</label>
+                <label>Size</label>
                 <input type="range" id="brushSize" min="1" max="50" value="3" title="Adjust brush size">
                 <span id="brushSizeLabel">3</span>px
             </div>
 
             <!-- Canvas Actions -->
             <div class="tool-group">
-                <label>Actions</label>
-                <button id="undoBtn" class="tool-btn" title="Undo (Ctrl+Z)">↶ Undo</button>
-                <button id="redoBtn" class="tool-btn" title="Redo (Ctrl+Y)">↷ Redo</button>
-                <button id="clearBtn" class="tool-btn danger" title="Clear Canvas">🗑️ Clear</button>
-            </div>
-
-            <!-- Download -->
-            <div class="tool-group">
-                <button id="downloadBtn" class="tool-btn success" title="Download as PNG">⬇️ Download</button>
+                <button id="undoBtn" class="tool-btn" title="Undo (Ctrl+Z)">↶</button>
+                <button id="redoBtn" class="tool-btn" title="Redo (Ctrl+Y)">↷</button>
+                <button id="clearBtn" class="tool-btn danger" title="Clear Canvas">🗑️</button>
+                <button id="downloadBtn" class="tool-btn success" title="Download as PNG">⬇️</button>
             </div>
         </div>
 
@@ -90,7 +97,7 @@
         <div class="canvas-container">
             <canvas id="drawingCanvas"></canvas>
             <div id="textInputBox" class="text-input-box" style="display: none;">
-                <input type="text" id="textInput" placeholder="Enter text...">
+                <input type="text" id="textInput" placeholder="Enter text..." autocomplete="off">
             </div>
         </div>
 

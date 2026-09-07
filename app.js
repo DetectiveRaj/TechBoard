@@ -1,7 +1,7 @@
 // Canvas Setup
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
-const toolButtons = document.querySelectorAll('.tool-btn');
+const toolButtons = document.querySelectorAll('.tool-btn:not(.dropdown-btn)');
 const colorPicker = document.getElementById('colorPicker');
 const brushSizeInput = document.getElementById('brushSize');
 const brushSizeLabel = document.getElementById('brushSizeLabel');
@@ -10,6 +10,8 @@ const undoBtn = document.getElementById('undoBtn');
 const redoBtn = document.getElementById('redoBtn');
 const clearBtn = document.getElementById('clearBtn');
 const downloadBtn = document.getElementById('downloadBtn');
+const imageBtn = document.getElementById('imageBtn');
+const imageInput = document.getElementById('imageInput');
 const toolStatus = document.getElementById('toolStatus');
 const coordinateInfo = document.getElementById('coordinateInfo');
 const textInputBox = document.getElementById('textInputBox');
@@ -58,22 +60,25 @@ function redrawCanvas() {
     };
 }
 
-// Tool selection
-toolButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        toolButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentTool = btn.dataset.tool;
-        updateToolStatus();
-        
-        if (currentTool === 'text') {
-            canvas.style.cursor = 'text';
-        } else if (currentTool === 'eraser') {
-            canvas.style.cursor = 'grab';
-        } else {
-            canvas.style.cursor = 'crosshair';
-        }
-    });
+// Tool selection - Fixed for all buttons including dropdown items
+const allToolButtons = document.querySelectorAll('.tool-btn');
+allToolButtons.forEach(btn => {
+    if (!btn.classList.contains('dropdown-btn')) {
+        btn.addEventListener('click', () => {
+            allToolButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTool = btn.dataset.tool;
+            updateToolStatus();
+            
+            if (currentTool === 'text') {
+                canvas.style.cursor = 'text';
+            } else if (currentTool === 'eraser') {
+                canvas.style.cursor = 'grab';
+            } else {
+                canvas.style.cursor = 'crosshair';
+            }
+        });
+    }
 });
 
 // Color picker
@@ -99,6 +104,46 @@ brushSizeInput.addEventListener('input', (e) => {
     brushSizeLabel.textContent = brushSize;
 });
 
+// Image insertion
+imageBtn.addEventListener('click', () => {
+    imageInput.click();
+});
+
+imageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                saveState();
+                // Draw image at canvas center
+                const maxWidth = canvas.width * 0.4;
+                const maxHeight = canvas.height * 0.4;
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+                if (height > maxHeight) {
+                    width = (width * maxHeight) / height;
+                    height = maxHeight;
+                }
+                
+                const x = (canvas.width - width) / 2;
+                const y = (canvas.height - height) / 2;
+                
+                ctx.drawImage(img, x, y, width, height);
+                saveState();
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
 // Mouse events
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
@@ -121,7 +166,7 @@ function startDrawing(e) {
     saveState();
     
     // Store original canvas data for live preview on shapes
-    if (['line', 'rectangle', 'circle', 'ellipse', 'triangle', 'polygon', 'star', 'arrow'].includes(currentTool)) {
+    if (['line', 'rectangle', 'circle', 'ellipse', 'triangle', 'polygon', 'star', 'arrow', 'rightarrow', 'diamond', 'hexagon', 'heart'].includes(currentTool)) {
         originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     }
     
@@ -232,6 +277,22 @@ function drawShape(x1, y1, x2, y2) {
         case 'arrow':
             drawArrow(x1, y1, x2, y2);
             break;
+            
+        case 'rightarrow':
+            drawRightArrow(x1, y1, x2, y2);
+            break;
+            
+        case 'diamond':
+            drawDiamond(x1, y1, x2, y2);
+            break;
+            
+        case 'hexagon':
+            drawPolygon(x1, y1, x2, y2, 6);
+            break;
+            
+        case 'heart':
+            drawHeart(x1, y1, x2, y2);
+            break;
     }
 }
 
@@ -294,6 +355,77 @@ function drawArrow(x1, y1, x2, y2) {
     ctx.stroke();
 }
 
+function drawRightArrow(x1, y1, x2, y2) {
+    const headlen = 15;
+    const width = x2 - x1;
+    const height = y2 - y1;
+    
+    // Draw rectangle body
+    if (fillShape) {
+        ctx.fillRect(x1, y1 + height * 0.3, width * 0.7, height * 0.4);
+    } else {
+        ctx.strokeRect(x1, y1 + height * 0.3, width * 0.7, height * 0.4);
+    }
+    
+    // Draw arrowhead
+    ctx.beginPath();
+    ctx.moveTo(x2, y1 + height / 2);
+    ctx.lineTo(x1 + width * 0.7, y1);
+    ctx.lineTo(x1 + width * 0.7, y2);
+    ctx.closePath();
+    
+    if (fillShape) {
+        ctx.fill();
+    } else {
+        ctx.stroke();
+    }
+}
+
+function drawDiamond(x1, y1, x2, y2) {
+    const centerX = (x1 + x2) / 2;
+    const centerY = (y1 + y2) / 2;
+    const width = Math.abs(x2 - x1) / 2;
+    const height = Math.abs(y2 - y1) / 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(centerX, y1);
+    ctx.lineTo(x2, centerY);
+    ctx.lineTo(centerX, y2);
+    ctx.lineTo(x1, centerY);
+    ctx.closePath();
+    
+    if (fillShape) {
+        ctx.fill();
+    } else {
+        ctx.stroke();
+    }
+}
+
+function drawHeart(x1, y1, x2, y2) {
+    const width = x2 - x1;
+    const height = y2 - y1;
+    const size = Math.min(width, height) / 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(x1 + width / 2, y2);
+    
+    // Left bump
+    ctx.bezierCurveTo(x1, y1 + size, x1, y1 + size * 0.5, x1 + size * 0.5, y1 + size * 0.5);
+    // Top middle
+    ctx.bezierCurveTo(x1 + width * 0.25, y1, x1 + width * 0.5, y1, x1 + width * 0.5, y1 + size * 0.5);
+    
+    // Right bump  
+    ctx.bezierCurveTo(x1 + width * 0.5, y1, x1 + width * 0.75, y1, x1 + width, y1 + size * 0.5);
+    ctx.bezierCurveTo(x1 + width, y1 + size * 0.5, x1 + width, y1 + size, x1 + width / 2, y2);
+    
+    ctx.closePath();
+    if (fillShape) {
+        ctx.fill();
+    } else {
+        ctx.stroke();
+    }
+}
+
 function showTextInput(x, y) {
     textInputBox.style.display = 'block';
     textInputBox.style.left = x + 'px';
@@ -301,19 +433,39 @@ function showTextInput(x, y) {
     textInput.value = '';
     textInput.focus();
     
-    textInput.onkeypress = (e) => {
+    // Handle Enter key
+    const handleEnter = (e) => {
         if (e.key === 'Enter') {
-            ctx.font = `${brushSize * 4}px Arial`;
-            ctx.fillStyle = currentColor;
-            ctx.fillText(textInput.value, x, y + parseInt(brushSize) * 4);
-            textInputBox.style.display = 'none';
-            saveState();
+            e.preventDefault();
+            saveText();
         }
     };
     
-    textInput.onblur = () => {
-        textInputBox.style.display = 'none';
+    // Handle blur
+    const handleBlur = () => {
+        if (textInput.value.trim()) {
+            saveText();
+        } else {
+            textInputBox.style.display = 'none';
+        }
+        textInput.removeEventListener('keypress', handleEnter);
+        textInput.removeEventListener('blur', handleBlur);
     };
+    
+    function saveText() {
+        if (textInput.value.trim()) {
+            ctx.font = `${brushSize * 4}px Arial`;
+            ctx.fillStyle = currentColor;
+            ctx.fillText(textInput.value, x, y + parseInt(brushSize) * 4);
+            saveState();
+        }
+        textInputBox.style.display = 'none';
+        textInput.removeEventListener('keypress', handleEnter);
+        textInput.removeEventListener('blur', handleBlur);
+    }
+    
+    textInput.addEventListener('keypress', handleEnter);
+    textInput.addEventListener('blur', handleBlur);
 }
 
 function updateCoordinates(e) {
@@ -335,6 +487,10 @@ function updateToolStatus() {
         'polygon': 'Polygon (6-sided)',
         'star': 'Star',
         'arrow': 'Arrow',
+        'rightarrow': 'Right Arrow',
+        'diamond': 'Diamond',
+        'hexagon': 'Hexagon',
+        'heart': 'Heart',
         'text': 'Text'
     };
     toolStatus.textContent = `Tool: ${toolNames[currentTool]} | Ready to draw`;
