@@ -23,9 +23,19 @@
                 <label>Drawing Tools</label>
                 <button class="tool-btn active" data-tool="pen" title="Pen">✏️ Pen</button>
                 <button class="tool-btn" data-tool="eraser" title="Eraser">🧹 Eraser</button>
+            </div>
+
+            <!-- Shapes -->
+            <div class="tool-group">
+                <label>Shapes</label>
                 <button class="tool-btn" data-tool="line" title="Line">📏 Line</button>
                 <button class="tool-btn" data-tool="rectangle" title="Rectangle">▭ Rectangle</button>
                 <button class="tool-btn" data-tool="circle" title="Circle">● Circle</button>
+                <button class="tool-btn" data-tool="ellipse" title="Ellipse">⬭ Ellipse</button>
+                <button class="tool-btn" data-tool="triangle" title="Triangle">△ Triangle</button>
+                <button class="tool-btn" data-tool="polygon" title="Polygon">⬠ Polygon</button>
+                <button class="tool-btn" data-tool="star" title="Star">⭐ Star</button>
+                <button class="tool-btn" data-tool="arrow" title="Arrow">➜ Arrow</button>
             </div>
 
             <!-- Text Tool -->
@@ -46,6 +56,13 @@
                     <div class="color-preset" data-color="#FFAA00" style="background: #FFAA00;" title="Orange"></div>
                     <div class="color-preset" data-color="#FF00FF" style="background: #FF00FF;" title="Purple"></div>
                 </div>
+            </div>
+
+            <!-- Fill Toggle -->
+            <div class="tool-group">
+                <label>Fill</label>
+                <input type="checkbox" id="fillToggle" title="Toggle shape fill">
+                <span style="margin-left: 5px;">Fill Shape</span>
             </div>
 
             <!-- Brush Size -->
