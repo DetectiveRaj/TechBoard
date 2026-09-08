@@ -25,6 +25,7 @@ let currentColor = '#000000';
 let brushSize = 3;
 let fillShape = false;
 let startX, startY;
+let textInputActive = false;
 const undoStack = [];
 const redoStack = [];
 
@@ -151,6 +152,9 @@ canvas.addEventListener('mouseup', stopDrawing);
 canvas.addEventListener('mousemove', updateCoordinates);
 
 function startDrawing(e) {
+    // Don't draw if text input is active
+    if (textInputActive) return;
+    
     isDrawing = true;
     const rect = canvas.getBoundingClientRect();
     startX = e.clientX - rect.left;
@@ -427,39 +431,45 @@ function drawHeart(x1, y1, x2, y2) {
 }
 
 function showTextInput(x, y) {
+    textInputActive = true;
+    
+    // Convert canvas coordinates to viewport coordinates
+    const canvasRect = canvas.getBoundingClientRect();
+    const viewportX = canvasRect.left + x;
+    const viewportY = canvasRect.top + y;
+    
     textInputBox.style.display = 'block';
-    textInputBox.style.left = x + 'px';
-    textInputBox.style.top = y + 'px';
+    textInputBox.style.left = viewportX + 'px';
+    textInputBox.style.top = viewportY + 'px';
     textInput.value = '';
     textInput.focus();
+    textInput.select();
     
-    // Handle Enter key
-    const handleEnter = (e) => {
+    // Handle Enter key and blur separately
+    function handleEnter(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            saveText();
+            finalizeText();
         }
-    };
+    }
     
-    // Handle blur
-    const handleBlur = () => {
-        if (textInput.value.trim()) {
-            saveText();
-        } else {
-            textInputBox.style.display = 'none';
-        }
-        textInput.removeEventListener('keypress', handleEnter);
-        textInput.removeEventListener('blur', handleBlur);
-    };
+    function handleBlur() {
+        finalizeText();
+    }
     
-    function saveText() {
+    function finalizeText() {
         if (textInput.value.trim()) {
-            ctx.font = `${brushSize * 4}px Arial`;
+            saveState();
+            ctx.font = `${parseInt(brushSize) * 4}px Arial`;
             ctx.fillStyle = currentColor;
             ctx.fillText(textInput.value, x, y + parseInt(brushSize) * 4);
             saveState();
         }
+        
         textInputBox.style.display = 'none';
+        textInputActive = false;
+        
+        // Remove event listeners
         textInput.removeEventListener('keypress', handleEnter);
         textInput.removeEventListener('blur', handleBlur);
     }
