@@ -28,14 +28,12 @@ body {
     height: 100vh;
 }
 
-/* Header - Compact */
+/* Header */
 .header {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     padding: 10px 15px;
     box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
-    position: relative;
-    z-index: 100;
 }
 
 .header-content h1 {
@@ -44,7 +42,7 @@ body {
     margin: 0;
 }
 
-/* Toolbar - Compact */
+/* Toolbar */
 .toolbar {
     background: white;
     border-bottom: 2px solid var(--border-color);
@@ -53,11 +51,8 @@ body {
     flex-wrap: wrap;
     gap: 12px;
     align-items: center;
-    overflow: visible;
     overflow-y: auto;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    position: relative;
-    z-index: 99;
 }
 
 .tool-group {
@@ -120,7 +115,7 @@ body {
     background: rgba(16, 185, 129, 0.1);
 }
 
-/* Dropdown Menu - FIXED */
+/* Dropdown Menu */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -128,22 +123,22 @@ body {
 
 .dropdown-btn {
     position: relative;
-}
-
-.dropdown-btn::after {
-    content: '';
+    z-index: 50;
 }
 
 .dropdown-content {
     display: none;
-    position: fixed;
+    position: absolute;
+    top: 100%;
+    left: 0;
     background-color: white;
-    min-width: 180px;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+    min-width: 160px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
     padding: 8px 0;
-    z-index: 10000;
+    z-index: 9999;
     border-radius: 4px;
     border: 1px solid var(--border-color);
+    margin-top: 4px;
 }
 
 .dropdown-content .tool-btn {
@@ -159,25 +154,18 @@ body {
     cursor: pointer;
     transition: background 0.2s ease;
     min-height: auto;
+    border-radius: 0;
 }
 
 .dropdown-content .tool-btn:hover {
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(99, 102, 241, 0.15);
     border: none;
     color: var(--primary-color);
+    transform: none;
 }
 
 .dropdown:hover .dropdown-content {
     display: block;
-}
-
-/* Position dropdown correctly relative to button */
-.dropdown:hover .dropdown-content {
-    top: auto;
-    left: auto;
-    position: absolute;
-    top: 100%;
-    left: 0;
 }
 
 #colorPicker {
@@ -251,7 +239,6 @@ body {
     background: white;
     overflow: auto;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
-    z-index: 1;
 }
 
 #drawingCanvas {
@@ -260,14 +247,14 @@ body {
     background: white;
 }
 
-/* Text Input - FIXED */
+/* Text Input Box */
 .text-input-box {
-    position: fixed;
+    position: absolute;
     background: white;
     border: 2px solid var(--primary-color);
     border-radius: 4px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    z-index: 5000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
     padding: 4px;
 }
 
@@ -277,8 +264,14 @@ body {
     padding: 6px 8px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 14px;
-    min-width: 180px;
+    min-width: 200px;
     box-sizing: border-box;
+    background: white;
+    color: var(--text-dark);
+}
+
+#textInput:focus {
+    outline: none;
 }
 
 /* Status Bar */
@@ -290,8 +283,6 @@ body {
     justify-content: space-between;
     font-size: 11px;
     color: var(--text-light);
-    position: relative;
-    z-index: 50;
 }
 
 /* Responsive */

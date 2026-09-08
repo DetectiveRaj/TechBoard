@@ -1,7 +1,7 @@
 // Canvas Setup
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
-const toolButtons = document.querySelectorAll('.tool-btn:not(.dropdown-btn)');
+const toolButtons = document.querySelectorAll('.tool-btn');
 const colorPicker = document.getElementById('colorPicker');
 const brushSizeInput = document.getElementById('brushSize');
 const brushSizeLabel = document.getElementById('brushSizeLabel');
@@ -25,7 +25,7 @@ let currentColor = '#000000';
 let brushSize = 3;
 let fillShape = false;
 let startX, startY;
-let textInputActive = false;
+let textActive = false;
 const undoStack = [];
 const redoStack = [];
 
@@ -61,12 +61,11 @@ function redrawCanvas() {
     };
 }
 
-// Tool selection - Fixed for all buttons including dropdown items
-const allToolButtons = document.querySelectorAll('.tool-btn');
-allToolButtons.forEach(btn => {
+// Tool selection
+toolButtons.forEach(btn => {
     if (!btn.classList.contains('dropdown-btn')) {
         btn.addEventListener('click', () => {
-            allToolButtons.forEach(b => b.classList.remove('active'));
+            toolButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentTool = btn.dataset.tool;
             updateToolStatus();
@@ -106,44 +105,47 @@ brushSizeInput.addEventListener('input', (e) => {
 });
 
 // Image insertion
-imageBtn.addEventListener('click', () => {
-    imageInput.click();
-});
+if (imageBtn) {
+    imageBtn.addEventListener('click', () => {
+        imageInput.click();
+    });
+}
 
-imageInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                saveState();
-                // Draw image at canvas center
-                const maxWidth = canvas.width * 0.4;
-                const maxHeight = canvas.height * 0.4;
-                let width = img.width;
-                let height = img.height;
-                
-                if (width > maxWidth) {
-                    height = (height * maxWidth) / width;
-                    width = maxWidth;
-                }
-                if (height > maxHeight) {
-                    width = (width * maxHeight) / height;
-                    height = maxHeight;
-                }
-                
-                const x = (canvas.width - width) / 2;
-                const y = (canvas.height - height) / 2;
-                
-                ctx.drawImage(img, x, y, width, height);
-                saveState();
+if (imageInput) {
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    saveState();
+                    const maxWidth = canvas.width * 0.4;
+                    const maxHeight = canvas.height * 0.4;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+                    
+                    const x = (canvas.width - width) / 2;
+                    const y = (canvas.height - height) / 2;
+                    
+                    ctx.drawImage(img, x, y, width, height);
+                    saveState();
+                };
+                img.src = event.target.result;
             };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-});
+            reader.readAsDataURL(file);
+        }
+    });
+}
 
 // Mouse events
 canvas.addEventListener('mousedown', startDrawing);
@@ -152,8 +154,10 @@ canvas.addEventListener('mouseup', stopDrawing);
 canvas.addEventListener('mousemove', updateCoordinates);
 
 function startDrawing(e) {
-    // Don't draw if text input is active
-    if (textInputActive) return;
+    // Prevent drawing if text input is active
+    if (textActive) {
+        return;
+    }
     
     isDrawing = true;
     const rect = canvas.getBoundingClientRect();
@@ -166,10 +170,8 @@ function startDrawing(e) {
         return;
     }
     
-    // Save the current canvas state before drawing
     saveState();
     
-    // Store original canvas data for live preview on shapes
     if (['line', 'rectangle', 'circle', 'ellipse', 'triangle', 'polygon', 'star', 'arrow', 'rightarrow', 'diamond', 'hexagon', 'heart'].includes(currentTool)) {
         originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     }
@@ -182,7 +184,7 @@ function startDrawing(e) {
 }
 
 function draw(e) {
-    if (!isDrawing || currentTool === 'text') return;
+    if (!isDrawing || currentTool === 'text' || textActive) return;
     
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -198,7 +200,6 @@ function draw(e) {
     } else if (currentTool === 'eraser') {
         ctx.clearRect(x - brushSize / 2, y - brushSize / 2, brushSize, brushSize);
     } else {
-        // For shapes, restore original state and draw shape on top
         if (originalImageData) {
             ctx.putImageData(originalImageData, 0, 0);
         }
@@ -344,13 +345,11 @@ function drawArrow(x1, y1, x2, y2) {
     const headlen = 20;
     const angle = Math.atan2(y2 - y1, x2 - x1);
     
-    // Draw line
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
     
-    // Draw arrowhead
     ctx.beginPath();
     ctx.moveTo(x2, y2);
     ctx.lineTo(x2 - headlen * Math.cos(angle - Math.PI / 6), y2 - headlen * Math.sin(angle - Math.PI / 6));
@@ -364,14 +363,12 @@ function drawRightArrow(x1, y1, x2, y2) {
     const width = x2 - x1;
     const height = y2 - y1;
     
-    // Draw rectangle body
     if (fillShape) {
         ctx.fillRect(x1, y1 + height * 0.3, width * 0.7, height * 0.4);
     } else {
         ctx.strokeRect(x1, y1 + height * 0.3, width * 0.7, height * 0.4);
     }
     
-    // Draw arrowhead
     ctx.beginPath();
     ctx.moveTo(x2, y1 + height / 2);
     ctx.lineTo(x1 + width * 0.7, y1);
@@ -388,8 +385,6 @@ function drawRightArrow(x1, y1, x2, y2) {
 function drawDiamond(x1, y1, x2, y2) {
     const centerX = (x1 + x2) / 2;
     const centerY = (y1 + y2) / 2;
-    const width = Math.abs(x2 - x1) / 2;
-    const height = Math.abs(y2 - y1) / 2;
     
     ctx.beginPath();
     ctx.moveTo(centerX, y1);
@@ -413,12 +408,8 @@ function drawHeart(x1, y1, x2, y2) {
     ctx.beginPath();
     ctx.moveTo(x1 + width / 2, y2);
     
-    // Left bump
     ctx.bezierCurveTo(x1, y1 + size, x1, y1 + size * 0.5, x1 + size * 0.5, y1 + size * 0.5);
-    // Top middle
     ctx.bezierCurveTo(x1 + width * 0.25, y1, x1 + width * 0.5, y1, x1 + width * 0.5, y1 + size * 0.5);
-    
-    // Right bump  
     ctx.bezierCurveTo(x1 + width * 0.5, y1, x1 + width * 0.75, y1, x1 + width, y1 + size * 0.5);
     ctx.bezierCurveTo(x1 + width, y1 + size * 0.5, x1 + width, y1 + size, x1 + width / 2, y2);
     
@@ -431,48 +422,36 @@ function drawHeart(x1, y1, x2, y2) {
 }
 
 function showTextInput(x, y) {
-    textInputActive = true;
-    
-    // Convert canvas coordinates to viewport coordinates
-    const canvasRect = canvas.getBoundingClientRect();
-    const viewportX = canvasRect.left + x;
-    const viewportY = canvasRect.top + y;
-    
+    textActive = true;
     textInputBox.style.display = 'block';
-    textInputBox.style.left = viewportX + 'px';
-    textInputBox.style.top = viewportY + 'px';
+    textInputBox.style.left = x + 'px';
+    textInputBox.style.top = y + 'px';
     textInput.value = '';
     textInput.focus();
-    textInput.select();
     
-    // Handle Enter key and blur separately
-    function handleEnter(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            finalizeText();
-        }
-    }
-    
-    function handleBlur() {
-        finalizeText();
-    }
-    
-    function finalizeText() {
+    function finishText() {
         if (textInput.value.trim()) {
-            saveState();
             ctx.font = `${parseInt(brushSize) * 4}px Arial`;
             ctx.fillStyle = currentColor;
             ctx.fillText(textInput.value, x, y + parseInt(brushSize) * 4);
             saveState();
         }
-        
         textInputBox.style.display = 'none';
-        textInputActive = false;
-        
-        // Remove event listeners
+        textActive = false;
         textInput.removeEventListener('keypress', handleEnter);
         textInput.removeEventListener('blur', handleBlur);
     }
+    
+    const handleEnter = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            finishText();
+        }
+    };
+    
+    const handleBlur = () => {
+        finishText();
+    };
     
     textInput.addEventListener('keypress', handleEnter);
     textInput.addEventListener('blur', handleBlur);
@@ -494,7 +473,7 @@ function updateToolStatus() {
         'circle': 'Circle',
         'ellipse': 'Ellipse',
         'triangle': 'Triangle',
-        'polygon': 'Polygon (6-sided)',
+        'polygon': 'Polygon',
         'star': 'Star',
         'arrow': 'Arrow',
         'rightarrow': 'Right Arrow',
